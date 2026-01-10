@@ -1,60 +1,42 @@
-import React, { useState, useEffect } from 'react'
+import React from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { 
-  MessageCircle, 
   Users, 
-  Calendar, 
   Stethoscope,
   Heart,
   Star,
-  Sparkles
+  Sparkles,
+  ClipboardList,
+  Activity,
+  FileText
 } from 'lucide-react'
-import { doctorApi } from '../services/api'
-import { Doctor } from '../types'
 import Button from './Button'
 import { ArrowRight } from './Icons'
 
 const Dashboard: React.FC = () => {
-  const [doctors, setDoctors] = useState<Doctor[]>([])
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    const fetchDoctors = async () => {
-      try {
-        const data = await doctorApi.getAll()
-        setDoctors(data.slice(0, 3)) // Show only first 3 doctors
-      } catch (error) {
-        console.error('Error fetching doctors:', error)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchDoctors()
-  }, [])
 
   const features = [
     {
-      icon: MessageCircle,
-      title: "AI-Powered Chat",
-      description: "Intelligent conversations to help manage patient symptoms",
+      icon: ClipboardList,
+      title: "Patient Registration",
+      description: "Register new patients and capture their symptoms efficiently",
       color: "from-blue-500 to-cyan-500",
-      href: "/chat"
+      href: "/register-patient"
     },
     {
-      icon: Users,
-      title: "Patient Management",
-      description: "Access and manage patient information efficiently",
-      color: "from-green-500 to-emerald-500",
-      href: "/doctors"
-    },
-    {
-      icon: Calendar,
+      icon: Activity,
       title: "Symptom Tracking",
       description: "Track and analyze patient symptoms over time",
+      color: "from-green-500 to-emerald-500",
+      href: "/register-patient"
+    },
+    {
+      icon: FileText,
+      title: "Medical Records",
+      description: "Access and manage patient medical history",
       color: "from-purple-500 to-pink-500",
-      href: "/book"
+      href: "/register-patient"
     }
   ]
 
@@ -114,13 +96,6 @@ const Dashboard: React.FC = () => {
                   <Users className="w-5 h-5" />
                   <span>Register Patient</span>
                   <ArrowRight size={16} />
-                </Button>
-              </Link>
-              
-              <Link to="/chat">
-                <Button variant="secondary" size="lg" className="flex items-center gap-2">
-                  <MessageCircle className="w-5 h-5" />
-                  <span>Start Chatting</span>
                 </Button>
               </Link>
             </motion.div>
@@ -215,73 +190,6 @@ const Dashboard: React.FC = () => {
         </div>
       </section>
 
-      {/* Featured Doctors */}
-      <section className="py-20 px-4">
-        <div className="max-w-7xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="text-center mb-16"
-          >
-            <h2 
-              className="text-4xl md:text-5xl font-medium mb-6"
-              style={{
-                background: "linear-gradient(to bottom, #ffffff, #ffffff, rgba(255, 255, 255, 0.6))",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                backgroundClip: "text",
-                letterSpacing: "-0.05em"
-              }}
-            >
-              Meet Our Doctors
-            </h2>
-            <p className="text-xl text-white/60 max-w-3xl mx-auto">
-              Expert medical professionals ready to help you
-            </p>
-          </motion.div>
-
-          {loading ? (
-            <div className="grid md:grid-cols-3 gap-8">
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="card p-8 animate-pulse">
-                  <div className="w-16 h-16 bg-gray-700 rounded-full mb-4"></div>
-                  <div className="h-6 bg-gray-700 rounded mb-2"></div>
-                  <div className="h-4 bg-gray-700 rounded mb-4"></div>
-                  <div className="h-4 bg-gray-700 rounded w-2/3"></div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="grid md:grid-cols-3 gap-8">
-              {doctors.map((doctor, index) => (
-                <motion.div
-                  key={doctor.id}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: index * 0.1 }}
-                  whileHover={{ y: -5 }}
-                  className="card p-8 group"
-                >
-                  <div className="w-16 h-16 bg-white/10 backdrop-blur-sm rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 border border-gray-700/50">
-                    <Stethoscope className="w-8 h-8 text-white" />
-                  </div>
-                  <h3 className="text-2xl font-bold text-white mb-2">{doctor.name}</h3>
-                  <p className="text-white/80 font-medium mb-4">{doctor.specialty}</p>
-                  <p className="text-white/60 mb-6">{doctor.department}</p>
-                  <Link to="/book">
-                    <Button variant="gradient" size="default" className="flex items-center gap-2">
-                      <Calendar className="w-4 h-4" />
-                      <span>Book Appointment</span>
-                    </Button>
-                  </Link>
-                </motion.div>
-              ))}
-            </div>
-          )}
-        </div>
-      </section>
-
       {/* CTA Section */}
       <section className="py-20 px-4 bg-gray-900/50 border-t border-gray-800/50">
         <div className="max-w-4xl mx-auto text-center">
@@ -306,16 +214,10 @@ const Dashboard: React.FC = () => {
               An assistance to doctors in managing patient symptoms with intelligent tracking and analysis
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link to="/chat">
+              <Link to="/register-patient">
                 <Button variant="gradient" size="lg" className="flex items-center gap-2">
-                  <MessageCircle className="w-5 h-5" />
-                  <span>Start Chatting Now</span>
-                </Button>
-              </Link>
-              <Link to="/doctors">
-                <Button variant="secondary" size="lg" className="flex items-center gap-2">
                   <Users className="w-5 h-5" />
-                  <span>Browse Doctors</span>
+                  <span>Register New Patient</span>
                 </Button>
               </Link>
             </div>
