@@ -8,11 +8,12 @@ import {
   Stethoscope,
   Heart,
   Star,
-  ArrowRight,
   Sparkles
 } from 'lucide-react'
 import { doctorApi } from '../services/api'
 import { Doctor } from '../types'
+import Button from './Button'
+import { ArrowRight } from './Icons'
 
 const Dashboard: React.FC = () => {
   const [doctors, setDoctors] = useState<Doctor[]>([])
@@ -37,21 +38,21 @@ const Dashboard: React.FC = () => {
     {
       icon: MessageCircle,
       title: "AI-Powered Chat",
-      description: "Intelligent conversations with our medical assistant",
+      description: "Intelligent conversations to help manage patient symptoms",
       color: "from-blue-500 to-cyan-500",
       href: "/chat"
     },
     {
       icon: Users,
-      title: "Find Specialists",
-      description: "Browse our team of expert doctors",
+      title: "Patient Management",
+      description: "Access and manage patient information efficiently",
       color: "from-green-500 to-emerald-500",
       href: "/doctors"
     },
     {
       icon: Calendar,
-      title: "Book Appointments",
-      description: "Schedule your visit with ease",
+      title: "Symptom Tracking",
+      description: "Track and analyze patient symptoms over time",
       color: "from-purple-500 to-pink-500",
       href: "/book"
     }
@@ -65,10 +66,9 @@ const Dashboard: React.FC = () => {
   ]
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-black text-white">
       {/* Hero Section */}
-      <section className="relative overflow-hidden py-20 px-4">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary-50 via-white to-medical-50"></div>
+      <section className="relative overflow-hidden py-20 px-4 md:py-24 animate-fadeIn">
         <div className="relative max-w-7xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -80,42 +80,48 @@ const Dashboard: React.FC = () => {
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="inline-flex items-center space-x-2 bg-primary-100 text-primary-700 px-4 py-2 rounded-full text-sm font-medium mb-6"
+              className="mb-8 inline-flex flex-wrap items-center justify-center gap-2 px-4 py-2 rounded-full border border-gray-700 bg-gray-800/50 backdrop-blur-sm max-w-full"
             >
-              <Sparkles className="w-4 h-4" />
-              <span>AI-Powered Medical Assistant</span>
+              <Sparkles className="w-4 h-4 text-gray-400" />
+              <span className="text-xs text-gray-400">Assistance for Doctors</span>
             </motion.div>
             
-            <h1 className="text-5xl md:text-7xl font-bold mb-6">
-              <span className="gradient-text">Doctor's Assistant</span>
+            <h1 
+              className="text-4xl md:text-5xl lg:text-6xl font-medium text-center max-w-3xl mx-auto px-6 leading-tight mb-6"
+              style={{
+                background: "linear-gradient(to bottom, #ffffff, #ffffff, rgba(255, 255, 255, 0.6))",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                backgroundClip: "text",
+                letterSpacing: "-0.05em"
+              }}
+            >
+              Tether <br />An assistance to doctors in managing patient symptoms
             </h1>
             
-            <p className="text-xl md:text-2xl text-slate-600 mb-8 max-w-3xl mx-auto leading-relaxed">
-              Your intelligent medical companion for booking appointments, 
-              finding specialists, and getting healthcare guidance.
+            <p className="text-sm md:text-base text-center max-w-2xl mx-auto px-6 mb-10 text-white/60">
+              A comprehensive platform designed to help doctors efficiently manage and track patient symptoms, providing intelligent support for better patient care.
             </p>
             
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.4 }}
-              className="flex flex-col sm:flex-row gap-4 justify-center"
+              className="flex flex-col sm:flex-row gap-4 justify-center items-center relative z-10 mb-16"
             >
-              <Link
-                to="/chat"
-                className="btn-primary inline-flex items-center space-x-2 text-lg px-8 py-4"
-              >
-                <MessageCircle className="w-5 h-5" />
-                <span>Start Chatting</span>
-                <ArrowRight className="w-4 h-4" />
+              <Link to="/register-patient">
+                <Button variant="gradient" size="lg" className="rounded-lg flex items-center justify-center gap-2">
+                  <Users className="w-5 h-5" />
+                  <span>Register Patient</span>
+                  <ArrowRight size={16} />
+                </Button>
               </Link>
               
-              <Link
-                to="/doctors"
-                className="btn-secondary inline-flex items-center space-x-2 text-lg px-8 py-4"
-              >
-                <Users className="w-5 h-5" />
-                <span>Browse Doctors</span>
+              <Link to="/chat">
+                <Button variant="secondary" size="lg" className="flex items-center gap-2">
+                  <MessageCircle className="w-5 h-5" />
+                  <span>Start Chatting</span>
+                </Button>
               </Link>
             </motion.div>
           </motion.div>
@@ -141,11 +147,11 @@ const Dashboard: React.FC = () => {
                   transition={{ duration: 0.5, delay: index * 0.1 }}
                   className="card p-6 text-center"
                 >
-                  <div className="w-12 h-12 bg-gradient-to-br from-primary-500 to-medical-500 rounded-xl flex items-center justify-center mx-auto mb-4">
+                  <div className="w-12 h-12 bg-white/10 backdrop-blur-sm rounded-xl flex items-center justify-center mx-auto mb-4 border border-gray-700/50">
                     <Icon className="w-6 h-6 text-white" />
                   </div>
-                  <div className="text-3xl font-bold text-slate-900 mb-2">{stat.value}</div>
-                  <div className="text-slate-600">{stat.label}</div>
+                  <div className="text-3xl font-bold text-white mb-2">{stat.value}</div>
+                  <div className="text-white/60 text-sm">{stat.label}</div>
                 </motion.div>
               )
             })}
@@ -154,7 +160,7 @@ const Dashboard: React.FC = () => {
       </section>
 
       {/* Features Section */}
-      <section className="py-20 px-4 bg-gradient-to-br from-slate-50 to-blue-50">
+      <section className="py-20 px-4 bg-black">
         <div className="max-w-7xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -162,11 +168,20 @@ const Dashboard: React.FC = () => {
             transition={{ duration: 0.6 }}
             className="text-center mb-16"
           >
-            <h2 className="text-4xl md:text-5xl font-bold mb-6">
-              <span className="gradient-text">Why Choose Us?</span>
+            <h2 
+              className="text-4xl md:text-5xl font-medium mb-6"
+              style={{
+                background: "linear-gradient(to bottom, #ffffff, #ffffff, rgba(255, 255, 255, 0.6))",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                backgroundClip: "text",
+                letterSpacing: "-0.05em"
+              }}
+            >
+              Why Choose Us?
             </h2>
-            <p className="text-xl text-slate-600 max-w-3xl mx-auto">
-              Experience the future of healthcare with our AI-powered platform
+            <p className="text-xl text-white/60 max-w-3xl mx-auto">
+              An intelligent system designed to assist doctors in managing patient symptoms effectively
             </p>
           </motion.div>
 
@@ -183,14 +198,14 @@ const Dashboard: React.FC = () => {
                   className="card p-8 group cursor-pointer"
                 >
                   <Link to={feature.href} className="block">
-                    <div className={`w-16 h-16 bg-gradient-to-br ${feature.color} rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300`}>
+                    <div className={`w-16 h-16 bg-gradient-to-br ${feature.color} rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 border border-white/10`}>
                       <Icon className="w-8 h-8 text-white" />
                     </div>
-                    <h3 className="text-2xl font-bold text-slate-900 mb-4">{feature.title}</h3>
-                    <p className="text-slate-600 mb-6">{feature.description}</p>
-                    <div className="flex items-center text-primary-600 font-medium group-hover:text-primary-700">
+                    <h3 className="text-2xl font-bold text-white mb-4">{feature.title}</h3>
+                    <p className="text-white/60 mb-6">{feature.description}</p>
+                    <div className="flex items-center text-white font-medium group-hover:text-white/80">
                       <span>Learn More</span>
-                      <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                      <ArrowRight size={16} className="ml-2 group-hover:translate-x-1 transition-transform" />
                     </div>
                   </Link>
                 </motion.div>
@@ -209,10 +224,19 @@ const Dashboard: React.FC = () => {
             transition={{ duration: 0.6 }}
             className="text-center mb-16"
           >
-            <h2 className="text-4xl md:text-5xl font-bold mb-6">
-              <span className="gradient-text">Meet Our Doctors</span>
+            <h2 
+              className="text-4xl md:text-5xl font-medium mb-6"
+              style={{
+                background: "linear-gradient(to bottom, #ffffff, #ffffff, rgba(255, 255, 255, 0.6))",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                backgroundClip: "text",
+                letterSpacing: "-0.05em"
+              }}
+            >
+              Meet Our Doctors
             </h2>
-            <p className="text-xl text-slate-600 max-w-3xl mx-auto">
+            <p className="text-xl text-white/60 max-w-3xl mx-auto">
               Expert medical professionals ready to help you
             </p>
           </motion.div>
@@ -221,10 +245,10 @@ const Dashboard: React.FC = () => {
             <div className="grid md:grid-cols-3 gap-8">
               {[1, 2, 3].map((i) => (
                 <div key={i} className="card p-8 animate-pulse">
-                  <div className="w-16 h-16 bg-slate-200 rounded-full mb-4"></div>
-                  <div className="h-6 bg-slate-200 rounded mb-2"></div>
-                  <div className="h-4 bg-slate-200 rounded mb-4"></div>
-                  <div className="h-4 bg-slate-200 rounded w-2/3"></div>
+                  <div className="w-16 h-16 bg-gray-700 rounded-full mb-4"></div>
+                  <div className="h-6 bg-gray-700 rounded mb-2"></div>
+                  <div className="h-4 bg-gray-700 rounded mb-4"></div>
+                  <div className="h-4 bg-gray-700 rounded w-2/3"></div>
                 </div>
               ))}
             </div>
@@ -239,18 +263,17 @@ const Dashboard: React.FC = () => {
                   whileHover={{ y: -5 }}
                   className="card p-8 group"
                 >
-                  <div className="w-16 h-16 bg-gradient-to-br from-primary-500 to-medical-500 rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                  <div className="w-16 h-16 bg-white/10 backdrop-blur-sm rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 border border-gray-700/50">
                     <Stethoscope className="w-8 h-8 text-white" />
                   </div>
-                  <h3 className="text-2xl font-bold text-slate-900 mb-2">{doctor.name}</h3>
-                  <p className="text-primary-600 font-medium mb-4">{doctor.specialty}</p>
-                  <p className="text-slate-600 mb-6">{doctor.department}</p>
-                  <Link
-                    to="/book"
-                    className="btn-primary inline-flex items-center space-x-2"
-                  >
-                    <Calendar className="w-4 h-4" />
-                    <span>Book Appointment</span>
+                  <h3 className="text-2xl font-bold text-white mb-2">{doctor.name}</h3>
+                  <p className="text-white/80 font-medium mb-4">{doctor.specialty}</p>
+                  <p className="text-white/60 mb-6">{doctor.department}</p>
+                  <Link to="/book">
+                    <Button variant="gradient" size="default" className="flex items-center gap-2">
+                      <Calendar className="w-4 h-4" />
+                      <span>Book Appointment</span>
+                    </Button>
                   </Link>
                 </motion.div>
               ))}
@@ -260,33 +283,40 @@ const Dashboard: React.FC = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 px-4 bg-gradient-to-br from-primary-500 to-medical-500">
+      <section className="py-20 px-4 bg-gray-900/50 border-t border-gray-800/50">
         <div className="max-w-4xl mx-auto text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
+            <h2 
+              className="text-4xl md:text-5xl font-medium text-white mb-6"
+              style={{
+                background: "linear-gradient(to bottom, #ffffff, #ffffff, rgba(255, 255, 255, 0.6))",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                backgroundClip: "text",
+                letterSpacing: "-0.05em"
+              }}
+            >
               Ready to Get Started?
             </h2>
-            <p className="text-xl text-white/90 mb-8">
-              Experience the future of healthcare with our AI-powered medical assistant
+            <p className="text-xl text-white/60 mb-8">
+              An assistance to doctors in managing patient symptoms with intelligent tracking and analysis
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link
-                to="/chat"
-                className="bg-white text-primary-600 hover:bg-slate-50 font-medium px-8 py-4 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 inline-flex items-center space-x-2"
-              >
-                <MessageCircle className="w-5 h-5" />
-                <span>Start Chatting Now</span>
+              <Link to="/chat">
+                <Button variant="gradient" size="lg" className="flex items-center gap-2">
+                  <MessageCircle className="w-5 h-5" />
+                  <span>Start Chatting Now</span>
+                </Button>
               </Link>
-              <Link
-                to="/doctors"
-                className="border-2 border-white text-white hover:bg-white hover:text-primary-600 font-medium px-8 py-4 rounded-xl transition-all duration-200 inline-flex items-center space-x-2"
-              >
-                <Users className="w-5 h-5" />
-                <span>Browse Doctors</span>
+              <Link to="/doctors">
+                <Button variant="secondary" size="lg" className="flex items-center gap-2">
+                  <Users className="w-5 h-5" />
+                  <span>Browse Doctors</span>
+                </Button>
               </Link>
             </div>
           </motion.div>

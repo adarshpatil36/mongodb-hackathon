@@ -91,15 +91,15 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ messages, setMessages }) 
 
   const quickActions = [
     {
-      text: "I need to see a doctor",
+      text: "Track patient symptoms",
       icon: Stethoscope
     },
     {
-      text: "Book an appointment",
+      text: "Review patient history",
       icon: Heart
     },
     {
-      text: "Find a specialist",
+      text: "Analyze symptom patterns",
       icon: MessageCircle
     }
   ]
@@ -115,8 +115,8 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ messages, setMessages }) 
                 <Bot className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h1 className="text-xl font-bold text-slate-900">Doctor's Assistant</h1>
-                <p className="text-sm text-slate-600">AI-Powered Medical Chatbot</p>
+                <h1 className="text-xl font-bold text-slate-900">Tether</h1>
+                <p className="text-sm text-slate-600">Assistance for Doctors</p>
               </div>
             </div>
             <div className="flex items-center space-x-2">
@@ -148,10 +148,10 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ messages, setMessages }) 
                     <Sparkles className="w-10 h-10 text-white" />
                   </div>
                   <h3 className="text-2xl font-bold text-slate-900 mb-4">
-                    Welcome to Doctor's Assistant! 👋
+                    Welcome to Tether! 👋
                   </h3>
                   <p className="text-slate-600 mb-8 max-w-md mx-auto">
-                    I'm here to help you book appointments, find specialists, and answer your medical questions.
+                    An assistance to doctors in managing patient symptoms. I'm here to help you track, analyze, and manage patient information effectively.
                   </p>
                   
                   {/* Quick Actions */}
@@ -256,7 +256,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ messages, setMessages }) 
                   type="text"
                   value={inputMessage}
                   onChange={(e) => setInputMessage(e.target.value)}
-                  placeholder="Ask me anything about appointments, doctors, or medical questions..."
+                  placeholder="Ask me about patient symptoms, tracking, or management..."
                   className="input-field pr-12"
                   disabled={isLoading}
                 />

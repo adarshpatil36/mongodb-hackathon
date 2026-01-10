@@ -1,6 +1,6 @@
-# Doctor's Assistant Frontend
+# Tether Frontend
 
-A beautiful, modern, and user-friendly React frontend for the Doctor's Assistant AI chatbot.
+A beautiful, modern, and user-friendly React frontend for Tether - an assistance to doctors in managing patient symptoms.
 
 ## 🚀 Features
 

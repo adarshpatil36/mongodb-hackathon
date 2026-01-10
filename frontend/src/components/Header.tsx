@@ -1,137 +1,103 @@
 import React, { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { motion } from 'framer-motion'
-import { 
-  Stethoscope, 
-  MessageCircle, 
-  Users, 
-  Calendar, 
-  Menu, 
-  X,
-  Heart,
-  Activity
-} from 'lucide-react'
+import { Menu, X } from './Icons'
+import Button from './Button'
 
 const Header: React.FC = () => {
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const location = useLocation()
 
   const navigation = [
-    { name: 'Dashboard', href: '/', icon: Activity },
-    { name: 'Chat', href: '/chat', icon: MessageCircle },
-    { name: 'Doctors', href: '/doctors', icon: Users },
-    { name: 'Book Appointment', href: '/book', icon: Calendar },
+    { name: 'Dashboard', href: '/' },
+    { name: 'Register Patient', href: '/register-patient' },
+    { name: 'Chat', href: '/chat' },
+    { name: 'Doctors', href: '/doctors' },
+    { name: 'Book Appointment', href: '/book' },
   ]
 
   const isActive = (path: string) => location.pathname === path
 
   return (
-    <motion.header 
-      initial={{ y: -100, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.6, ease: "easeOut" }}
-      className="sticky top-0 z-50 glass-effect border-b border-white/20"
-    >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
-          {/* Logo */}
-          <Link to="/" className="flex items-center space-x-3 group">
-            <motion.div
-              whileHover={{ scale: 1.1, rotate: 5 }}
-              className="relative"
-            >
-              <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-medical-500 rounded-xl flex items-center justify-center shadow-lg">
-                <Stethoscope className="w-6 h-6 text-white" />
-              </div>
-              <motion.div
-                className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center"
-                animate={{ scale: [1, 1.2, 1] }}
-                transition={{ duration: 2, repeat: Infinity }}
-              >
-                <Heart className="w-2 h-2 text-white fill-current" />
-              </motion.div>
-            </motion.div>
-            <div className="hidden sm:block">
-              <h1 className="text-xl font-bold gradient-text">Doctor's Assistant</h1>
-              <p className="text-xs text-slate-500">AI-Powered Medical Chatbot</p>
-            </div>
+    <header className="fixed top-0 w-full z-50 border-b border-gray-800/50 bg-black/80 backdrop-blur-md">
+      <nav className="max-w-7xl mx-auto px-6 py-4">
+        <div className="flex items-center justify-between">
+          <Link to="/" className="text-xl font-semibold text-white">
+            Tether
           </Link>
+          
+          <div className="hidden md:flex items-center justify-center gap-8 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+            {navigation.map((item) => (
+              <Link
+                key={item.name}
+                to={item.href}
+                className={`text-sm transition-colors ${
+                  isActive(item.href)
+                    ? 'text-white'
+                    : 'text-white/60 hover:text-white'
+                }`}
+              >
+                {item.name}
+              </Link>
+            ))}
+          </div>
 
-          {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-1">
-            {navigation.map((item) => {
-              const Icon = item.icon
-              return (
-                <Link
-                  key={item.name}
-                  to={item.href}
-                  className={`relative flex items-center space-x-2 px-4 py-2 rounded-xl transition-all duration-200 ${
-                    isActive(item.href)
-                      ? 'bg-primary-500 text-white shadow-lg'
-                      : 'text-slate-600 hover:text-primary-600 hover:bg-primary-50'
-                  }`}
-                >
-                  <Icon className="w-4 h-4" />
-                  <span className="font-medium">{item.name}</span>
-                  {isActive(item.href) && (
-                    <motion.div
-                      layoutId="activeTab"
-                      className="absolute inset-0 bg-primary-500 rounded-xl -z-10"
-                      initial={false}
-                      transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-                    />
-                  )}
-                </Link>
-              )
-            })}
-          </nav>
+          <div className="hidden md:flex items-center gap-4">
+            <Link to="/login">
+              <Button type="button" variant="ghost" size="sm">
+                Sign in
+              </Button>
+            </Link>
+            <Link to="/login">
+              <Button type="button" variant="default" size="sm">
+                Sign Up
+              </Button>
+            </Link>
+          </div>
 
-          {/* Mobile menu button */}
           <button
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="md:hidden p-2 rounded-xl text-slate-600 hover:text-primary-600 hover:bg-primary-50 transition-colors"
+            type="button"
+            className="md:hidden text-white"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-label="Toggle menu"
           >
-            {isMobileMenuOpen ? (
-              <X className="w-6 h-6" />
-            ) : (
-              <Menu className="w-6 h-6" />
-            )}
+            {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
         </div>
+      </nav>
 
-        {/* Mobile Navigation */}
-        <motion.div
-          initial={false}
-          animate={{ 
-            height: isMobileMenuOpen ? 'auto' : 0,
-            opacity: isMobileMenuOpen ? 1 : 0
-          }}
-          transition={{ duration: 0.3 }}
-          className="md:hidden overflow-hidden"
-        >
-          <div className="py-4 space-y-2">
-            {navigation.map((item) => {
-              const Icon = item.icon
-              return (
-                <Link
-                  key={item.name}
-                  to={item.href}
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className={`flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 ${
-                    isActive(item.href)
-                      ? 'bg-primary-500 text-white shadow-lg'
-                      : 'text-slate-600 hover:text-primary-600 hover:bg-primary-50'
-                  }`}
-                >
-                  <Icon className="w-5 h-5" />
-                  <span className="font-medium">{item.name}</span>
-                </Link>
-              )
-            })}
+      {mobileMenuOpen && (
+        <div className="md:hidden bg-black/95 backdrop-blur-md border-t border-gray-800/50 animate-slideDown">
+          <div className="px-6 py-4 flex flex-col gap-4">
+            {navigation.map((item) => (
+              <Link
+                key={item.name}
+                to={item.href}
+                className={`text-sm transition-colors py-2 ${
+                  isActive(item.href)
+                    ? 'text-white'
+                    : 'text-white/60 hover:text-white'
+                }`}
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                {item.name}
+              </Link>
+            ))}
+            <div className="flex flex-col gap-2 pt-4 border-t border-gray-800/50">
+              <Link to="/login" onClick={() => setMobileMenuOpen(false)}>
+                <Button type="button" variant="ghost" size="sm" className="w-full">
+                  Sign in
+                </Button>
+              </Link>
+              <Link to="/login" onClick={() => setMobileMenuOpen(false)}>
+                <Button type="button" variant="default" size="sm" className="w-full">
+                  Sign Up
+                </Button>
+              </Link>
+            </div>
           </div>
-        </motion.div>
-      </div>
-    </motion.header>
+        </div>
+      )}
+    </header>
   )
 }
 

@@ -26,12 +26,41 @@ export interface DoctorAvailability {
   is_available: boolean
 }
 
+export interface Symptom {
+  id?: number
+  description: string
+  onset_date: string
+  severity: 'mild' | 'moderate' | 'severe'
+  duration_days?: number
+  duration_hours?: number
+  related_symptoms?: string
+  notes?: string
+}
+
 export interface Patient {
-  id: number
+  id?: number
   name: string
+  age: number
+  gender: 'male' | 'female' | 'other' | 'prefer_not_to_say'
   phone?: string
   email?: string
-  created_at: string
+  address?: string
+  medical_history?: string
+  symptoms: Symptom[]
+  created_at?: string
+}
+
+export interface PatientRegistrationForm {
+  patient: {
+    name: string
+    age: number
+    gender: 'male' | 'female' | 'other' | 'prefer_not_to_say'
+    phone?: string
+    email?: string
+    address?: string
+    medical_history?: string
+  }
+  symptoms: Symptom[]
 }
 
 export interface Appointment {

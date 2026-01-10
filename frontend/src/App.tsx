@@ -9,6 +9,8 @@ import ChatInterface from './components/ChatInterface'
 import DoctorList from './components/DoctorList'
 import AppointmentBooking from './components/AppointmentBooking'
 import Dashboard from './components/Dashboard'
+import Login from './components/Login'
+import PatientRegistration from './components/PatientRegistration'
 import TestComponent from './components/TestComponent'
 
 // Types
@@ -21,16 +23,17 @@ function App() {
 
   return (
     <Router>
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+      <div className="min-h-screen bg-black text-white pt-16">
         <Toaster 
           position="top-right"
           toastOptions={{
             duration: 4000,
             style: {
-              background: '#fff',
-              color: '#1e293b',
+              background: '#1f2937',
+              color: '#fff',
               borderRadius: '12px',
-              boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2)',
             },
           }}
         />
@@ -110,6 +113,32 @@ function App() {
                   transition={{ duration: 0.3 }}
                 >
                   <TestComponent />
+                </motion.div>
+              } 
+            />
+            <Route 
+              path="/login" 
+              element={
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <Login />
+                </motion.div>
+              } 
+            />
+            <Route 
+              path="/register-patient" 
+              element={
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.4 }}
+                >
+                  <PatientRegistration />
                 </motion.div>
               } 
             />

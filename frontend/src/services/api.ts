@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { ChatResponse, Doctor, Appointment, BookingFormData } from '../types'
+import { ChatResponse, Doctor, Appointment, BookingFormData, Patient, PatientRegistrationForm } from '../types'
 
 const API_BASE_URL = (import.meta as any).env?.VITE_API_URL || 'https://doctor-chatbot-api-5v9h.onrender.com'
 
@@ -86,6 +86,28 @@ export const availabilityApi = {
     const response = await api.post('/chat', {
       message: `Get available doctors on ${date} at ${time}`,
     })
+    return response.data
+  },
+}
+
+export const patientApi = {
+  getAll: async (): Promise<Patient[]> => {
+    const response = await api.get('/patients/')
+    return response.data
+  },
+  
+  getById: async (id: number): Promise<Patient> => {
+    const response = await api.get(`/patients/${id}`)
+    return response.data
+  },
+  
+  register: async (patientData: PatientRegistrationForm): Promise<Patient> => {
+    const response = await api.post('/patients/', patientData)
+    return response.data
+  },
+  
+  update: async (id: number, patientData: Partial<Patient>): Promise<Patient> => {
+    const response = await api.put(`/patients/${id}`, patientData)
     return response.data
   },
 }
