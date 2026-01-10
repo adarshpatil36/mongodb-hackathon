@@ -7,6 +7,7 @@ import Header from './components/Header'
 import Dashboard from './components/Dashboard'
 import Login from './components/Login'
 import PatientRegistration from './components/PatientRegistration'
+import MedicalRecords from './components/MedicalRecords'
 import TestComponent from './components/TestComponent'
 
 function App() {
@@ -81,6 +82,19 @@ function App() {
                   transition={{ duration: 0.4 }}
                 >
                   <PatientRegistration />
+                </motion.div>
+              } 
+            />
+            <Route 
+              path="/medical-records" 
+              element={
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.4 }}
+                >
+                  <MedicalRecords />
                 </motion.div>
               } 
             />

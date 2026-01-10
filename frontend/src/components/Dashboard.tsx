@@ -29,14 +29,14 @@ const Dashboard: React.FC = () => {
       title: "Symptom Tracking",
       description: "Track and analyze patient symptoms over time",
       color: "from-green-500 to-emerald-500",
-      href: "/register-patient"
+      href: "/medical-records"
     },
     {
       icon: FileText,
       title: "Medical Records",
       description: "Access and manage patient medical history",
       color: "from-purple-500 to-pink-500",
-      href: "/register-patient"
+      href: "/medical-records"
     }
   ]
 
@@ -96,6 +96,12 @@ const Dashboard: React.FC = () => {
                   <Users className="w-5 h-5" />
                   <span>Register Patient</span>
                   <ArrowRight size={16} />
+                </Button>
+              </Link>
+              <Link to="/medical-records">
+                <Button variant="secondary" size="lg" className="rounded-lg flex items-center justify-center gap-2">
+                  <FileText className="w-5 h-5" />
+                  <span>View Medical Records</span>
                 </Button>
               </Link>
             </motion.div>
@@ -218,6 +224,12 @@ const Dashboard: React.FC = () => {
                 <Button variant="gradient" size="lg" className="flex items-center gap-2">
                   <Users className="w-5 h-5" />
                   <span>Register New Patient</span>
+                </Button>
+              </Link>
+              <Link to="/medical-records">
+                <Button variant="secondary" size="lg" className="flex items-center gap-2">
+                  <FileText className="w-5 h-5" />
+                  <span>View Medical Records</span>
                 </Button>
               </Link>
             </div>

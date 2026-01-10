@@ -10,6 +10,7 @@ const Header: React.FC = () => {
   const navigation = [
     { name: 'Dashboard', href: '/' },
     { name: 'Register Patient', href: '/register-patient' },
+    { name: 'Medical Records', href: '/medical-records' },
   ]
 
   const isActive = (path: string) => location.pathname === path
