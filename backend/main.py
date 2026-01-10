@@ -3,7 +3,8 @@ from fastapi import FastAPI
 from contextlib import asynccontextmanager
 import logging
 from database import connect_to_mongo, close_mongo_connection
-from api.routes import patients
+from api.routes import patients, calls, patient_state, webhooks
+from workers.scheduler import start_scheduler, stop_scheduler
 
 # Configure logging
 logging.basicConfig(
@@ -18,9 +19,11 @@ async def lifespan(app: FastAPI):
     # Startup
     logger.info("Starting up...")
     await connect_to_mongo()
+    start_scheduler()
     yield
     # Shutdown
     logger.info("Shutting down...")
+    stop_scheduler()
     await close_mongo_connection()
 
 app = FastAPI(
@@ -42,3 +45,6 @@ async def health_check():
 
 # Include routers
 app.include_router(patients.router)
+app.include_router(calls.router)
+app.include_router(patient_state.router)
+app.include_router(webhooks.router)
