@@ -1,0 +1,2 @@
+// Notification state store (Zustand)
+

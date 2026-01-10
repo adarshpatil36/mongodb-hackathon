@@ -1,0 +1,2 @@
+// Risk level badge component
+

@@ -1,0 +1,2 @@
+// Patient card component
+

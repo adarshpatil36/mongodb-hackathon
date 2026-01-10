@@ -1,0 +1,2 @@
+// All calls view page
+
