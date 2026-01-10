@@ -41,8 +41,8 @@ export const patientApi = {
     return response.data
   },
   
-  getById: async (id: number): Promise<Patient> => {
-    const response = await api.get(`/patients/${id}`)
+  getById: async (id: string): Promise<Patient> => {
+    const response = await api.get(`/patients/${encodeURIComponent(id)}`)
     return response.data
   },
   
@@ -51,8 +51,8 @@ export const patientApi = {
     return response.data
   },
   
-  update: async (id: number, patientData: Partial<Patient>): Promise<Patient> => {
-    const response = await api.put(`/patients/${id}`, patientData)
+  update: async (id: string, patientData: Partial<Patient>): Promise<Patient> => {
+    const response = await api.put(`/patients/${encodeURIComponent(id)}`, patientData)
     return response.data
   },
 }

@@ -1,38 +1,50 @@
-export interface Symptom {
-  id?: number
-  description: string
-  onset_date: string
-  severity: 'mild' | 'moderate' | 'severe'
-  duration_days?: number
-  duration_hours?: number
-  related_symptoms?: string
-  notes?: string
+export interface EmergencyContact {
+  name: string
+  relationship: string
+  phone: string
+}
+
+export interface CallSchedule {
+  frequency: string
+  preferred_time: string
+  next_call_date?: string
 }
 
 export interface Patient {
-  id?: number
-  name: string
-  age: number
-  gender: 'male' | 'female' | 'other' | 'prefer_not_to_say'
-  phone?: string
+  _id?: string
+  first_name: string
+  last_name: string
+  date_of_birth: string
+  phone: string
   email?: string
-  address?: string
-  medical_history?: string
-  symptoms: Symptom[]
+  preferred_language: string
+  surgery_type: string
+  surgery_date: string
+  medications: string[]
+  allergies: string[]
+  conditions: string[]
+  emergency_contact: EmergencyContact
+  call_schedule?: CallSchedule
+  notes?: string
+  doctor_id?: string
   created_at?: string
+  updated_at?: string
 }
 
 export interface PatientRegistrationForm {
-  patient: {
-    name: string
-    age: number
-    gender: 'male' | 'female' | 'other' | 'prefer_not_to_say'
-    phone?: string
-    email?: string
-    address?: string
-    medical_history?: string
-  }
-  symptoms: Symptom[]
+  first_name: string
+  last_name: string
+  date_of_birth: string
+  phone: string
+  email?: string
+  preferred_language: string
+  surgery_type: string
+  surgery_date: string
+  medications: string[]
+  allergies: string[]
+  conditions: string[]
+  emergency_contact: EmergencyContact
+  notes?: string
 }
 
 export interface ApiResponse<T> {
