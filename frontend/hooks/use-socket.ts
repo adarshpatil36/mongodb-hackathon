@@ -1,2 +1,0 @@
-// WebSocket connection hook
-

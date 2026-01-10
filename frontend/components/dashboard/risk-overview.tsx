@@ -1,2 +1,0 @@
-// Risk overview chart component
-

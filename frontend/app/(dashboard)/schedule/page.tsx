@@ -1,2 +1,0 @@
-// Call scheduling page
-

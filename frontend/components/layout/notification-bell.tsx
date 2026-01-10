@@ -1,2 +1,0 @@
-// Notification bell component
-

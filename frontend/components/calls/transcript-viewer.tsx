@@ -1,2 +1,0 @@
-// Transcript viewer component
-

@@ -1,2 +1,0 @@
-// Edit patient page
-

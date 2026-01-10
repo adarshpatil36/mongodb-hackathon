@@ -1,2 +1,0 @@
-// Call button component
-

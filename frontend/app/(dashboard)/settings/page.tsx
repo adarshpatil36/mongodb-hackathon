@@ -1,2 +1,0 @@
-// Doctor settings page
-

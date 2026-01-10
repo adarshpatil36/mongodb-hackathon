@@ -1,2 +1,0 @@
-// Patient call history page
-

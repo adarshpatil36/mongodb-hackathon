@@ -1,2 +1,0 @@
-// Add new patient page
-

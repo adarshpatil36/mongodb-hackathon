@@ -1,2 +1,0 @@
-// Root layout with sidebar
-

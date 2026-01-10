@@ -1,2 +1,0 @@
-// All calls view page
-

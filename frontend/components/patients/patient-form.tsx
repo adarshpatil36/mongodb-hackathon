@@ -1,2 +1,0 @@
-// Patient form component
-
