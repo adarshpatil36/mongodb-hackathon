@@ -16,6 +16,12 @@ export default defineConfig({
         target: 'http://localhost:8000',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, '')
+      },
+      '/tether-api': {
+        target: 'https://tether-six.vercel.app',
+        changeOrigin: true,
+        secure: true,
+        rewrite: (path) => path.replace(/^\/tether-api/, '/api/v1')
       }
     }
   }

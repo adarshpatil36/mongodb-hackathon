@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { 
@@ -27,12 +27,33 @@ import {
   Plus,
   Eye,
   CheckSquare,
-  Square
+  Square,
+  RefreshCw,
+  Loader2
 } from 'lucide-react'
 import Button from './Button'
+import { externalPatientApi } from '../services/api'
+import { Patient, Medication, MedicationObject } from '../types'
 
-// Patient chart data for each patient
-const patientCharts: Record<string, {
+// Helper to format medication for display
+const formatMedication = (med: Medication): string => {
+  if (typeof med === 'string') {
+    return med
+  }
+  // It's a MedicationObject
+  return `${med.name} ${med.dosage} - ${med.frequency}`
+}
+
+// Helper to get medication key for React
+const getMedicationKey = (med: Medication, index: number): string => {
+  if (typeof med === 'string') {
+    return `${med}-${index}`
+  }
+  return `${med.name}-${med.dosage}-${index}`
+}
+
+// Interface for patient chart data
+interface PatientChart {
   id: string
   name: string
   age: number
@@ -41,99 +62,75 @@ const patientCharts: Record<string, {
   timeline: { date: string; event: string; type: string }[]
   medications: string[]
   recentLabs: { name: string; date: string; status: string }[]
-}> = {
-  '1': {
-    id: '1',
-    name: 'John Doe',
-    age: 45,
-    surgery: 'Total Knee Arthroplasty',
-    surgeryDate: '2024-01-20',
-    timeline: [
-      { date: '2026-01-10', event: 'Post-op Day 14 Check', type: 'visit' },
-      { date: '2026-01-05', event: 'Physical Therapy Session', type: 'therapy' },
-      { date: '2024-01-20', event: 'Surgery Completed', type: 'surgery' },
-    ],
-    medications: ['Oxycodone 5mg PRN', 'Aspirin 81mg Daily', 'Gabapentin 300mg TID'],
-    recentLabs: [
-      { name: 'CBC', date: '2026-01-08', status: 'normal' },
-      { name: 'CMP', date: '2026-01-08', status: 'normal' },
-      { name: 'PT/INR', date: '2026-01-08', status: 'abnormal' },
-    ],
-  },
-  '2': {
-    id: '2',
-    name: 'Jane Smith',
-    age: 52,
-    surgery: 'Hip Resurfacing',
-    surgeryDate: '2024-01-18',
-    timeline: [
-      { date: '2026-01-10', event: 'Post-op Day 16 Check', type: 'visit' },
-      { date: '2026-01-07', event: 'Wound Check', type: 'visit' },
-      { date: '2024-01-18', event: 'Surgery Completed', type: 'surgery' },
-    ],
-    medications: ['Tramadol 50mg PRN', 'Enoxaparin 40mg Daily', 'Acetaminophen 1000mg TID'],
-    recentLabs: [
-      { name: 'CBC', date: '2026-01-09', status: 'normal' },
-      { name: 'CRP', date: '2026-01-09', status: 'abnormal' },
-    ],
-  },
-  '3': {
-    id: '3',
-    name: 'Robert Johnson',
-    age: 38,
-    surgery: 'ACL Reconstruction',
-    surgeryDate: '2024-01-15',
-    timeline: [
-      { date: '2026-01-10', event: 'Consultation', type: 'visit' },
-      { date: '2026-01-03', event: 'MRI Review', type: 'visit' },
-    ],
-    medications: ['Ibuprofen 400mg PRN', 'Vitamin D 2000IU Daily'],
-    recentLabs: [
-      { name: 'CBC', date: '2026-01-05', status: 'normal' },
-    ],
-  },
-  '4': {
-    id: '4',
-    name: 'Emily Williams',
-    age: 61,
-    surgery: 'Rotator Cuff Repair',
-    surgeryDate: '2024-01-10',
-    timeline: [
-      { date: '2026-01-10', event: 'Check-up Scheduled', type: 'visit' },
-      { date: '2024-01-10', event: 'Surgery Completed', type: 'surgery' },
-    ],
-    medications: ['Meloxicam 15mg Daily', 'Omeprazole 20mg Daily'],
-    recentLabs: [
-      { name: 'CMP', date: '2026-01-06', status: 'normal' },
-    ],
-  },
-  '5': {
-    id: '5',
-    name: 'Michael Brown',
-    age: 55,
-    surgery: 'Spinal Fusion',
-    surgeryDate: '2024-01-05',
-    timeline: [
-      { date: '2026-01-10', event: 'Televisit Scheduled', type: 'visit' },
-      { date: '2026-01-02', event: 'Physical Therapy', type: 'therapy' },
-      { date: '2024-01-05', event: 'Surgery Completed', type: 'surgery' },
-    ],
-    medications: ['Gabapentin 300mg TID', 'Cyclobenzaprine 10mg PRN', 'Aspirin 81mg Daily'],
-    recentLabs: [
-      { name: 'CBC', date: '2026-01-04', status: 'normal' },
-      { name: 'CMP', date: '2026-01-04', status: 'normal' },
-    ],
-  },
 }
 
-// Mock data for today's patients
-const todaysPatients = [
-  { id: '1', name: 'John Doe', time: '9:00 AM', type: 'Follow-up', priority: 'high', status: 'waiting' },
-  { id: '2', name: 'Jane Smith', time: '9:30 AM', type: 'Post-op', priority: 'high', status: 'in-progress' },
-  { id: '3', name: 'Robert Johnson', time: '10:00 AM', type: 'Consultation', priority: 'medium', status: 'waiting' },
-  { id: '4', name: 'Emily Williams', time: '10:30 AM', type: 'Check-up', priority: 'low', status: 'scheduled' },
-  { id: '5', name: 'Michael Brown', time: '11:00 AM', type: 'Televisit', priority: 'medium', status: 'scheduled' },
-]
+interface TodaysPatient {
+  id: string
+  name: string
+  time: string
+  type: string
+  priority: 'high' | 'medium' | 'low'
+  status: 'waiting' | 'in-progress' | 'scheduled'
+}
+
+// Helper to calculate age from date of birth
+const calculateAge = (dob: string): number => {
+  const birthDate = new Date(dob)
+  const today = new Date()
+  let age = today.getFullYear() - birthDate.getFullYear()
+  const m = today.getMonth() - birthDate.getMonth()
+  if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+    age--
+  }
+  return age
+}
+
+// Helper to derive priority based on surgery date
+const derivePriority = (surgeryDate: string): 'high' | 'medium' | 'low' => {
+  const surgery = new Date(surgeryDate)
+  const now = new Date()
+  const daysSinceSurgery = Math.floor((now.getTime() - surgery.getTime()) / (1000 * 60 * 60 * 24))
+  
+  if (daysSinceSurgery <= 7) return 'high'
+  if (daysSinceSurgery <= 30) return 'medium'
+  return 'low'
+}
+
+// Transform API patient to chart format
+const transformToPatientChart = (patient: Patient, index: number): PatientChart => ({
+  id: patient._id || String(index),
+  name: `${patient.first_name} ${patient.last_name}`,
+  age: calculateAge(patient.date_of_birth),
+  surgery: patient.surgery_type,
+  surgeryDate: patient.surgery_date,
+  timeline: [
+    { date: new Date().toISOString().split('T')[0], event: 'Follow-up Scheduled', type: 'visit' },
+    { date: patient.surgery_date, event: 'Surgery Completed', type: 'surgery' },
+  ],
+  medications: patient.medications || [],
+  recentLabs: [],
+})
+
+// Transform API patient to today's patient format
+const transformToTodaysPatient = (patient: Patient, index: number): TodaysPatient => {
+  const baseHour = 9
+  const hour = baseHour + Math.floor(index / 2)
+  const minute = (index % 2) * 30
+  const time = `${hour}:${minute.toString().padStart(2, '0')} AM`
+  
+  const priority = derivePriority(patient.surgery_date)
+  const statuses: ('waiting' | 'in-progress' | 'scheduled')[] = ['waiting', 'in-progress', 'scheduled']
+  const status = statuses[index % 3]
+  
+  return {
+    id: patient._id || String(index),
+    name: `${patient.first_name} ${patient.last_name}`,
+    time,
+    type: 'Follow-up',
+    priority,
+    status,
+  }
+}
 
 // Mock data for tasks
 const tasks = [
@@ -151,20 +148,63 @@ const templates = {
   diagnoses: ['M17.11 - Primary OA, Right Knee', 'Z96.651 - Right Knee Replacement', 'M25.561 - Pain in Right Knee'],
 }
 
-// Analytics data
-const analytics = {
-  patientVolume: { today: 12, week: 67, trend: '+8%' },
-  noShows: { today: 1, week: 4, rate: '5.9%' },
+// Analytics data (will be updated dynamically)
+const getAnalytics = (patientCount: number) => ({
+  patientVolume: { today: patientCount, week: patientCount * 5, trend: '+8%' },
+  noShows: { today: Math.max(0, Math.floor(patientCount * 0.1)), week: Math.max(0, Math.floor(patientCount * 0.3)), rate: '5.9%' },
   avgConsultTime: { today: '18 min', week: '16 min', trend: '-2 min' },
-}
+})
 
 const DoctorDashboard: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('')
-  const [selectedPatientId, setSelectedPatientId] = useState('1')
+  const [selectedPatientId, setSelectedPatientId] = useState<string | null>(null)
   const [chartTab, setChartTab] = useState<'timeline' | 'notes' | 'meds' | 'labs' | 'attachments'>('timeline')
   const [taskList, setTaskList] = useState(tasks)
+  
+  // API state
+  const [patientCharts, setPatientCharts] = useState<Record<string, PatientChart>>({})
+  const [todaysPatients, setTodaysPatients] = useState<TodaysPatient[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-  const selectedPatient = patientCharts[selectedPatientId]
+  // Fetch patients from API
+  const fetchPatients = async () => {
+    setLoading(true)
+    setError(null)
+    try {
+      const response = await externalPatientApi.getAll()
+      // Handle both array response and object with data property
+      const patientData = Array.isArray(response) ? response : (response as { data?: Patient[] }).data || []
+      
+      // Transform to patient charts
+      const charts: Record<string, PatientChart> = {}
+      patientData.forEach((patient, index) => {
+        const chart = transformToPatientChart(patient, index)
+        charts[chart.id] = chart
+      })
+      setPatientCharts(charts)
+      
+      // Transform to today's patients
+      const todaysData = patientData.map(transformToTodaysPatient)
+      setTodaysPatients(todaysData)
+      
+      // Select first patient if none selected
+      if (!selectedPatientId && patientData.length > 0) {
+        setSelectedPatientId(patientData[0]._id || '0')
+      }
+    } catch (err) {
+      console.error('Error fetching patients:', err)
+      setError('Failed to load patients')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchPatients()
+  }, [])
+
+  const selectedPatient = selectedPatientId ? patientCharts[selectedPatientId] : null
 
   const handlePatientClick = (patientId: string) => {
     setSelectedPatientId(patientId)
@@ -197,6 +237,8 @@ const DoctorDashboard: React.FC = () => {
     p.name.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
+  const analytics = getAnalytics(todaysPatients.length)
+
   return (
     <div className="min-h-screen bg-black text-white py-6 px-4">
       <div className="max-w-[1600px] mx-auto">
@@ -211,6 +253,14 @@ const DoctorDashboard: React.FC = () => {
             <p className="text-sm text-white/60">Welcome back, Dr. Smith</p>
           </div>
           <div className="flex items-center gap-3">
+            <button
+              onClick={fetchPatients}
+              disabled={loading}
+              className="p-2 bg-white/10 hover:bg-white/20 border border-gray-700 rounded-lg text-white/80 hover:text-white transition-all disabled:opacity-50"
+              title="Refresh patients"
+            >
+              <RefreshCw className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} />
+            </button>
             <Link to="/register-patient">
               <Button variant="gradient" size="sm" className="flex items-center gap-2">
                 <Plus className="w-4 h-4" />
@@ -253,40 +303,63 @@ const DoctorDashboard: React.FC = () => {
 
               {/* Patient Queue */}
               <div className="space-y-2 max-h-[300px] overflow-y-auto">
-                {filteredPatients.map((patient) => {
-                  const priorityConfig = getPriorityConfig(patient.priority)
-                  const statusConfig = getStatusConfig(patient.status)
-                  const PriorityIcon = priorityConfig.icon
-
-                  return (
+                {loading ? (
+                  <div className="flex flex-col items-center justify-center py-8">
+                    <Loader2 className="w-8 h-8 text-white/40 animate-spin mb-2" />
+                    <p className="text-sm text-white/40">Loading patients...</p>
+                  </div>
+                ) : error ? (
+                  <div className="flex flex-col items-center justify-center py-8">
+                    <AlertTriangle className="w-8 h-8 text-red-400 mb-2" />
+                    <p className="text-sm text-red-400">{error}</p>
                     <button
-                      type="button"
-                      key={patient.id}
-                      onClick={() => handlePatientClick(patient.id)}
-                      className={`w-full text-left p-3 rounded-lg border transition-all ${
-                        selectedPatientId === patient.id
-                          ? 'bg-white/10 border-white/30 ring-1 ring-white/20'
-                          : 'bg-gray-800/30 border-gray-700/50 hover:border-gray-600/50'
-                      }`}
+                      onClick={fetchPatients}
+                      className="mt-2 px-3 py-1 bg-red-500/20 hover:bg-red-500/30 rounded-lg text-red-400 text-sm"
                     >
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="font-medium text-white text-sm">{patient.name}</span>
-                        <PriorityIcon className={`w-4 h-4 ${priorityConfig.color}`} />
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2 text-xs text-white/60">
-                          <Clock className="w-3 h-3" />
-                          {patient.time}
-                          <span className="text-white/40">•</span>
-                          {patient.type}
-                        </div>
-                        <span className={`text-xs px-2 py-0.5 rounded-full ${statusConfig.bg} ${statusConfig.color}`}>
-                          {statusConfig.label}
-                        </span>
-                      </div>
+                      Retry
                     </button>
-                  )
-                })}
+                  </div>
+                ) : filteredPatients.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center py-8">
+                    <Users className="w-8 h-8 text-white/40 mb-2" />
+                    <p className="text-sm text-white/40">No patients found</p>
+                  </div>
+                ) : (
+                  filteredPatients.map((patient) => {
+                    const priorityConfig = getPriorityConfig(patient.priority)
+                    const statusConfig = getStatusConfig(patient.status)
+                    const PriorityIcon = priorityConfig.icon
+
+                    return (
+                      <button
+                        type="button"
+                        key={patient.id}
+                        onClick={() => handlePatientClick(patient.id)}
+                        className={`w-full text-left p-3 rounded-lg border transition-all ${
+                          selectedPatientId === patient.id
+                            ? 'bg-white/10 border-white/30 ring-1 ring-white/20'
+                            : 'bg-gray-800/30 border-gray-700/50 hover:border-gray-600/50'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="font-medium text-white text-sm">{patient.name}</span>
+                          <PriorityIcon className={`w-4 h-4 ${priorityConfig.color}`} />
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2 text-xs text-white/60">
+                            <Clock className="w-3 h-3" />
+                            {patient.time}
+                            <span className="text-white/40">•</span>
+                            {patient.type}
+                          </div>
+                          <span className={`text-xs px-2 py-0.5 rounded-full ${statusConfig.bg} ${statusConfig.color}`}>
+                            {statusConfig.label}
+                          </span>
+                        </div>
+                      </button>
+                    )
+                  })
+                )}
               </div>
             </motion.div>
 
@@ -354,6 +427,22 @@ const DoctorDashboard: React.FC = () => {
               animate={{ opacity: 1, y: 0 }}
               className="card p-4"
             >
+              {!selectedPatient ? (
+                <div className="flex flex-col items-center justify-center py-16">
+                  {loading ? (
+                    <>
+                      <Loader2 className="w-12 h-12 text-white/40 animate-spin mb-4" />
+                      <p className="text-white/60">Loading patient data...</p>
+                    </>
+                  ) : (
+                    <>
+                      <Users className="w-12 h-12 text-white/40 mb-4" />
+                      <p className="text-white/60">Select a patient to view their chart</p>
+                    </>
+                  )}
+                </div>
+              ) : (
+                <>
               {/* Patient Header */}
               <div className="flex items-center justify-between mb-4 pb-4 border-b border-gray-700/50">
                 <div className="flex items-center gap-4">
@@ -434,33 +523,47 @@ const DoctorDashboard: React.FC = () => {
 
                 {chartTab === 'meds' && (
                   <div className="space-y-2">
-                    {selectedPatient.medications.map((med) => (
-                      <div key={med} className="flex items-center gap-3 p-3 bg-gray-800/30 rounded-lg">
-                        <Pill className="w-4 h-4 text-green-400" />
-                        <span className="text-sm text-white">{med}</span>
+                    {selectedPatient.medications.length > 0 ? (
+                      selectedPatient.medications.map((med, index) => (
+                        <div key={getMedicationKey(med, index)} className="flex items-center gap-3 p-3 bg-gray-800/30 rounded-lg">
+                          <Pill className="w-4 h-4 text-green-400" />
+                          <span className="text-sm text-white">{formatMedication(med)}</span>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="text-center py-8 text-white/40">
+                        <Pill className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                        <p>No medications recorded</p>
                       </div>
-                    ))}
+                    )}
                   </div>
                 )}
 
                 {chartTab === 'labs' && (
                   <div className="space-y-2">
-                    {selectedPatient.recentLabs.map((lab) => (
-                      <div key={`${lab.name}-${lab.date}`} className="flex items-center justify-between p-3 bg-gray-800/30 rounded-lg">
-                        <div className="flex items-center gap-3">
-                          <FlaskConical className={`w-4 h-4 ${lab.status === 'normal' ? 'text-green-400' : 'text-red-400'}`} />
-                          <span className="text-sm text-white">{lab.name}</span>
+                    {selectedPatient.recentLabs.length > 0 ? (
+                      selectedPatient.recentLabs.map((lab) => (
+                        <div key={`${lab.name}-${lab.date}`} className="flex items-center justify-between p-3 bg-gray-800/30 rounded-lg">
+                          <div className="flex items-center gap-3">
+                            <FlaskConical className={`w-4 h-4 ${lab.status === 'normal' ? 'text-green-400' : 'text-red-400'}`} />
+                            <span className="text-sm text-white">{lab.name}</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs text-white/60">{lab.date}</span>
+                            <span className={`text-xs px-2 py-0.5 rounded-full ${
+                              lab.status === 'normal' ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'
+                            }`}>
+                              {lab.status}
+                            </span>
+                          </div>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs text-white/60">{lab.date}</span>
-                          <span className={`text-xs px-2 py-0.5 rounded-full ${
-                            lab.status === 'normal' ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'
-                          }`}>
-                            {lab.status}
-                          </span>
-                        </div>
+                      ))
+                    ) : (
+                      <div className="text-center py-8 text-white/40">
+                        <FlaskConical className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                        <p>No lab results available</p>
                       </div>
-                    ))}
+                    )}
                   </div>
                 )}
 
@@ -478,6 +581,8 @@ const DoctorDashboard: React.FC = () => {
                   </div>
                 )}
               </div>
+                </>
+              )}
             </motion.div>
 
             {/* Televisit Controls */}

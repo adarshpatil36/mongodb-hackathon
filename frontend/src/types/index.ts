@@ -8,7 +8,19 @@ export interface CallSchedule {
   frequency: string
   preferred_time: string
   next_call_date?: string
+  timezone?: string
+  enabled?: boolean
 }
+
+// Medication can be a string or an object from the API
+export interface MedicationObject {
+  name: string
+  dosage: string
+  frequency: string
+  start_date?: string
+}
+
+export type Medication = string | MedicationObject
 
 export interface Patient {
   _id?: string
@@ -20,7 +32,7 @@ export interface Patient {
   preferred_language: string
   surgery_type: string
   surgery_date: string
-  medications: string[]
+  medications: Medication[]
   allergies: string[]
   conditions: string[]
   emergency_contact: EmergencyContact

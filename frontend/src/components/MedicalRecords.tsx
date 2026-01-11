@@ -10,8 +10,11 @@ import {
   Phone,
   User,
   Calendar,
-  ChevronRight
+  ChevronRight,
+  RefreshCw
 } from 'lucide-react'
+import { externalPatientApi } from '../services/api'
+import { Patient } from '../types'
 
 interface PatientRecord {
   _id: string
@@ -24,102 +27,54 @@ interface PatientRecord {
   notes?: string
 }
 
-// Mock data - replace with API call
-const mockPatients: PatientRecord[] = [
-  {
-    _id: '1',
-    first_name: 'John',
-    last_name: 'Doe',
-    phone: '+1234567890',
-    surgery_type: 'Total Knee Arthroplasty',
-    last_contacted: '2026-01-10T14:30:00',
-    urgency: 'high',
-    notes: 'Patient reporting severe pain post-surgery'
-  },
-  {
-    _id: '2',
-    first_name: 'Jane',
-    last_name: 'Smith',
-    phone: '+1987654321',
-    surgery_type: 'Hip Resurfacing',
-    last_contacted: '2026-01-10T11:15:00',
-    urgency: 'high',
-    notes: 'Signs of infection, needs immediate follow-up'
-  },
-  {
-    _id: '3',
-    first_name: 'Robert',
-    last_name: 'Johnson',
-    phone: '+1122334455',
-    surgery_type: 'ACL Reconstruction',
-    last_contacted: '2026-01-09T16:45:00',
-    urgency: 'medium',
-    notes: 'Mild swelling, monitoring required'
-  },
-  {
-    _id: '4',
-    first_name: 'Emily',
-    last_name: 'Williams',
-    phone: '+1555666777',
-    surgery_type: 'Rotator Cuff Repair',
-    last_contacted: '2026-01-09T09:00:00',
-    urgency: 'medium',
-    notes: 'Physical therapy progress check'
-  },
-  {
-    _id: '5',
-    first_name: 'Michael',
-    last_name: 'Brown',
-    phone: '+1888999000',
-    surgery_type: 'Spinal Fusion',
-    last_contacted: '2026-01-08T13:20:00',
-    urgency: 'low',
-    notes: 'Recovery on track, routine follow-up'
-  },
-  {
-    _id: '6',
-    first_name: 'Sarah',
-    last_name: 'Davis',
-    phone: '+1444555666',
-    surgery_type: 'Total Hip Arthroplasty',
-    last_contacted: '2026-01-08T10:00:00',
-    urgency: 'low',
-    notes: 'Doing well, no concerns'
-  },
-  {
-    _id: '7',
-    first_name: 'David',
-    last_name: 'Miller',
-    phone: '+1777888999',
-    surgery_type: 'Knee Arthroscopy',
-    last_contacted: '2026-01-07T15:30:00',
-    urgency: 'low',
-    notes: 'Cleared for light activity'
-  },
-]
+// Helper function to derive urgency based on surgery date
+const deriveUrgency = (surgeryDate: string): 'high' | 'medium' | 'low' => {
+  const surgery = new Date(surgeryDate)
+  const now = new Date()
+  const daysSinceSurgery = Math.floor((now.getTime() - surgery.getTime()) / (1000 * 60 * 60 * 24))
+  
+  if (daysSinceSurgery <= 7) return 'high'
+  if (daysSinceSurgery <= 30) return 'medium'
+  return 'low'
+}
+
+// Transform Patient from API to PatientRecord for display
+const transformPatientToRecord = (patient: Patient): PatientRecord => ({
+  _id: patient._id || String(Math.random()),
+  first_name: patient.first_name,
+  last_name: patient.last_name,
+  phone: patient.phone,
+  surgery_type: patient.surgery_type,
+  last_contacted: patient.updated_at || patient.created_at || new Date().toISOString(),
+  urgency: deriveUrgency(patient.surgery_date),
+  notes: patient.notes || `${patient.conditions?.join(', ') || 'No conditions noted'}`
+})
 
 const MedicalRecords: React.FC = () => {
   const [patients, setPatients] = useState<PatientRecord[]>([])
   const [searchTerm, setSearchTerm] = useState('')
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [filterUrgency, setFilterUrgency] = useState<'all' | 'high' | 'medium' | 'low'>('all')
 
-  useEffect(() => {
-    // Simulate API call - replace with actual API
-    const fetchPatients = async () => {
-      setLoading(true)
-      try {
-        // TODO: Replace with actual API call
-        // const response = await patientApi.getAll()
-        await new Promise(resolve => setTimeout(resolve, 500))
-        setPatients(mockPatients)
-      } catch (error) {
-        console.error('Error fetching patients:', error)
-      } finally {
-        setLoading(false)
-      }
+  const fetchPatients = async () => {
+    setLoading(true)
+    setError(null)
+    try {
+      const response = await externalPatientApi.getAll()
+      // Handle both array response and object with data property
+      const patientData = Array.isArray(response) ? response : (response as { data?: Patient[] }).data || []
+      const transformedPatients = patientData.map(transformPatientToRecord)
+      setPatients(transformedPatients)
+    } catch (err) {
+      console.error('Error fetching patients:', err)
+      setError('Failed to load patients. Please try again.')
+    } finally {
+      setLoading(false)
     }
+  }
 
+  useEffect(() => {
     fetchPatients()
   }, [])
 
@@ -276,24 +231,52 @@ const MedicalRecords: React.FC = () => {
           </div>
         </motion.div>
 
-        {/* Search Bar */}
+        {/* Search Bar and Refresh */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
           className="mb-6"
         >
-          <div className="relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
-            <input
-              type="text"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search by patient name or surgery type..."
-              className="input-field pl-12 w-full"
-            />
+          <div className="flex gap-3">
+            <div className="relative flex-1">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Search by patient name or surgery type..."
+                className="input-field pl-12 w-full"
+              />
+            </div>
+            <button
+              onClick={fetchPatients}
+              disabled={loading}
+              className="px-4 py-2 bg-white/10 hover:bg-white/20 border border-gray-700 rounded-xl flex items-center gap-2 text-white/80 hover:text-white transition-all disabled:opacity-50"
+            >
+              <RefreshCw className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} />
+              <span className="hidden sm:inline">Refresh</span>
+            </button>
           </div>
         </motion.div>
+
+        {/* Error Message */}
+        {error && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-6 p-4 bg-red-500/20 border border-red-500/30 rounded-xl flex items-center gap-3"
+          >
+            <AlertTriangle className="w-5 h-5 text-red-400" />
+            <p className="text-red-400">{error}</p>
+            <button
+              onClick={fetchPatients}
+              className="ml-auto px-3 py-1 bg-red-500/20 hover:bg-red-500/30 rounded-lg text-red-400 text-sm"
+            >
+              Retry
+            </button>
+          </motion.div>
+        )}
 
         {/* Patient List */}
         <motion.div

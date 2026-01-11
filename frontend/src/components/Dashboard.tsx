@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { 
@@ -14,8 +14,23 @@ import {
 } from 'lucide-react'
 import Button from './Button'
 import { ArrowRight } from './Icons'
+import { externalPatientApi } from '../services/api'
 
 const Dashboard: React.FC = () => {
+  const [patientCount, setPatientCount] = useState<number | null>(null)
+
+  useEffect(() => {
+    const fetchPatientCount = async () => {
+      try {
+        const response = await externalPatientApi.getAll()
+        const patientData = Array.isArray(response) ? response : (response as { data?: unknown[] }).data || []
+        setPatientCount(patientData.length)
+      } catch (err) {
+        console.error('Error fetching patient count:', err)
+      }
+    }
+    fetchPatientCount()
+  }, [])
 
   const features = [
     {
@@ -44,7 +59,7 @@ const Dashboard: React.FC = () => {
   const stats = [
     { label: "Active Doctors", value: "5+", icon: Stethoscope },
     { label: "Specialties", value: "8+", icon: Heart },
-    { label: "Patients Served", value: "500+", icon: Users },
+    { label: "Patients Registered", value: patientCount !== null ? String(patientCount) : "...", icon: Users },
     { label: "Success Rate", value: "99%", icon: Star }
   ]
 
