@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 // Components
 import Header from './components/Header'
 import Dashboard from './components/Dashboard'
+import DoctorDashboard from './components/DoctorDashboard'
 import Login from './components/Login'
 import PatientRegistration from './components/PatientRegistration'
 import MedicalRecords from './components/MedicalRecords'
@@ -95,6 +96,19 @@ function App() {
                   transition={{ duration: 0.4 }}
                 >
                   <MedicalRecords />
+                </motion.div>
+              } 
+            />
+            <Route 
+              path="/doctor-dashboard" 
+              element={
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.4 }}
+                >
+                  <DoctorDashboard />
                 </motion.div>
               } 
             />

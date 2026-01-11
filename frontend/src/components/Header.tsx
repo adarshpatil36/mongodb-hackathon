@@ -8,7 +8,8 @@ const Header: React.FC = () => {
   const location = useLocation()
 
   const navigation = [
-    { name: 'Dashboard', href: '/' },
+    { name: 'Home', href: '/' },
+    { name: 'Dashboard', href: '/doctor-dashboard' },
     { name: 'Register Patient', href: '/register-patient' },
     { name: 'Medical Records', href: '/medical-records' },
   ]

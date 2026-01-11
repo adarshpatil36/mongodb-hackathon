@@ -9,7 +9,8 @@ import {
   Sparkles,
   ClipboardList,
   Activity,
-  FileText
+  FileText,
+  LayoutDashboard
 } from 'lucide-react'
 import Button from './Button'
 import { ArrowRight } from './Icons'
@@ -91,17 +92,17 @@ const Dashboard: React.FC = () => {
               transition={{ duration: 0.6, delay: 0.4 }}
               className="flex flex-col sm:flex-row gap-4 justify-center items-center relative z-10 mb-16"
             >
-              <Link to="/register-patient">
+              <Link to="/doctor-dashboard">
                 <Button variant="gradient" size="lg" className="rounded-lg flex items-center justify-center gap-2">
-                  <Users className="w-5 h-5" />
-                  <span>Register Patient</span>
+                  <LayoutDashboard className="w-5 h-5" />
+                  <span>Open Dashboard</span>
                   <ArrowRight size={16} />
                 </Button>
               </Link>
-              <Link to="/medical-records">
+              <Link to="/register-patient">
                 <Button variant="secondary" size="lg" className="rounded-lg flex items-center justify-center gap-2">
-                  <FileText className="w-5 h-5" />
-                  <span>View Medical Records</span>
+                  <Users className="w-5 h-5" />
+                  <span>Register Patient</span>
                 </Button>
               </Link>
             </motion.div>
@@ -220,10 +221,10 @@ const Dashboard: React.FC = () => {
               An assistance to doctors in managing patient symptoms with intelligent tracking and analysis
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link to="/register-patient">
+              <Link to="/doctor-dashboard">
                 <Button variant="gradient" size="lg" className="flex items-center gap-2">
-                  <Users className="w-5 h-5" />
-                  <span>Register New Patient</span>
+                  <LayoutDashboard className="w-5 h-5" />
+                  <span>Go to Dashboard</span>
                 </Button>
               </Link>
               <Link to="/medical-records">
