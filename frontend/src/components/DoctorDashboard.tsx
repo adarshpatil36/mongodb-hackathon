@@ -31,6 +31,101 @@ import {
 } from 'lucide-react'
 import Button from './Button'
 
+// Patient chart data for each patient
+const patientCharts: Record<string, {
+  id: string
+  name: string
+  age: number
+  surgery: string
+  surgeryDate: string
+  timeline: { date: string; event: string; type: string }[]
+  medications: string[]
+  recentLabs: { name: string; date: string; status: string }[]
+}> = {
+  '1': {
+    id: '1',
+    name: 'John Doe',
+    age: 45,
+    surgery: 'Total Knee Arthroplasty',
+    surgeryDate: '2024-01-20',
+    timeline: [
+      { date: '2026-01-10', event: 'Post-op Day 14 Check', type: 'visit' },
+      { date: '2026-01-05', event: 'Physical Therapy Session', type: 'therapy' },
+      { date: '2024-01-20', event: 'Surgery Completed', type: 'surgery' },
+    ],
+    medications: ['Oxycodone 5mg PRN', 'Aspirin 81mg Daily', 'Gabapentin 300mg TID'],
+    recentLabs: [
+      { name: 'CBC', date: '2026-01-08', status: 'normal' },
+      { name: 'CMP', date: '2026-01-08', status: 'normal' },
+      { name: 'PT/INR', date: '2026-01-08', status: 'abnormal' },
+    ],
+  },
+  '2': {
+    id: '2',
+    name: 'Jane Smith',
+    age: 52,
+    surgery: 'Hip Resurfacing',
+    surgeryDate: '2024-01-18',
+    timeline: [
+      { date: '2026-01-10', event: 'Post-op Day 16 Check', type: 'visit' },
+      { date: '2026-01-07', event: 'Wound Check', type: 'visit' },
+      { date: '2024-01-18', event: 'Surgery Completed', type: 'surgery' },
+    ],
+    medications: ['Tramadol 50mg PRN', 'Enoxaparin 40mg Daily', 'Acetaminophen 1000mg TID'],
+    recentLabs: [
+      { name: 'CBC', date: '2026-01-09', status: 'normal' },
+      { name: 'CRP', date: '2026-01-09', status: 'abnormal' },
+    ],
+  },
+  '3': {
+    id: '3',
+    name: 'Robert Johnson',
+    age: 38,
+    surgery: 'ACL Reconstruction',
+    surgeryDate: '2024-01-15',
+    timeline: [
+      { date: '2026-01-10', event: 'Consultation', type: 'visit' },
+      { date: '2026-01-03', event: 'MRI Review', type: 'visit' },
+    ],
+    medications: ['Ibuprofen 400mg PRN', 'Vitamin D 2000IU Daily'],
+    recentLabs: [
+      { name: 'CBC', date: '2026-01-05', status: 'normal' },
+    ],
+  },
+  '4': {
+    id: '4',
+    name: 'Emily Williams',
+    age: 61,
+    surgery: 'Rotator Cuff Repair',
+    surgeryDate: '2024-01-10',
+    timeline: [
+      { date: '2026-01-10', event: 'Check-up Scheduled', type: 'visit' },
+      { date: '2024-01-10', event: 'Surgery Completed', type: 'surgery' },
+    ],
+    medications: ['Meloxicam 15mg Daily', 'Omeprazole 20mg Daily'],
+    recentLabs: [
+      { name: 'CMP', date: '2026-01-06', status: 'normal' },
+    ],
+  },
+  '5': {
+    id: '5',
+    name: 'Michael Brown',
+    age: 55,
+    surgery: 'Spinal Fusion',
+    surgeryDate: '2024-01-05',
+    timeline: [
+      { date: '2026-01-10', event: 'Televisit Scheduled', type: 'visit' },
+      { date: '2026-01-02', event: 'Physical Therapy', type: 'therapy' },
+      { date: '2024-01-05', event: 'Surgery Completed', type: 'surgery' },
+    ],
+    medications: ['Gabapentin 300mg TID', 'Cyclobenzaprine 10mg PRN', 'Aspirin 81mg Daily'],
+    recentLabs: [
+      { name: 'CBC', date: '2026-01-04', status: 'normal' },
+      { name: 'CMP', date: '2026-01-04', status: 'normal' },
+    ],
+  },
+}
+
 // Mock data for today's patients
 const todaysPatients = [
   { id: '1', name: 'John Doe', time: '9:00 AM', type: 'Follow-up', priority: 'high', status: 'waiting' },
@@ -49,25 +144,6 @@ const tasks = [
   { id: '5', type: 'lab', title: 'Review MRI results - Emily Williams', urgent: false, completed: false },
 ]
 
-// Mock patient chart data
-const patientChart = {
-  name: 'John Doe',
-  age: 45,
-  surgery: 'Total Knee Arthroplasty',
-  surgeryDate: '2024-01-20',
-  timeline: [
-    { date: '2026-01-10', event: 'Post-op Day 14 Check', type: 'visit' },
-    { date: '2026-01-05', event: 'Physical Therapy Session', type: 'therapy' },
-    { date: '2024-01-20', event: 'Surgery Completed', type: 'surgery' },
-  ],
-  medications: ['Oxycodone 5mg PRN', 'Aspirin 81mg Daily', 'Gabapentin 300mg TID'],
-  recentLabs: [
-    { name: 'CBC', date: '2026-01-08', status: 'normal' },
-    { name: 'CMP', date: '2026-01-08', status: 'normal' },
-    { name: 'PT/INR', date: '2026-01-08', status: 'abnormal' },
-  ],
-}
-
 // Templates data
 const templates = {
   notes: ['Post-Op Day 1', 'Follow-Up Visit', 'Discharge Summary', 'Consultation Note'],
@@ -84,9 +160,16 @@ const analytics = {
 
 const DoctorDashboard: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('')
-  const [selectedPatient] = useState(patientChart)
+  const [selectedPatientId, setSelectedPatientId] = useState('1')
   const [chartTab, setChartTab] = useState<'timeline' | 'notes' | 'meds' | 'labs' | 'attachments'>('timeline')
   const [taskList, setTaskList] = useState(tasks)
+
+  const selectedPatient = patientCharts[selectedPatientId]
+
+  const handlePatientClick = (patientId: string) => {
+    setSelectedPatientId(patientId)
+    setChartTab('timeline') // Reset to timeline when selecting a new patient
+  }
 
   const toggleTask = (taskId: string) => {
     setTaskList(prev => prev.map(task => 
@@ -176,9 +259,15 @@ const DoctorDashboard: React.FC = () => {
                   const PriorityIcon = priorityConfig.icon
 
                   return (
-                    <div
+                    <button
+                      type="button"
                       key={patient.id}
-                      className="p-3 bg-gray-800/30 rounded-lg border border-gray-700/50 hover:border-gray-600/50 cursor-pointer transition-all"
+                      onClick={() => handlePatientClick(patient.id)}
+                      className={`w-full text-left p-3 rounded-lg border transition-all ${
+                        selectedPatientId === patient.id
+                          ? 'bg-white/10 border-white/30 ring-1 ring-white/20'
+                          : 'bg-gray-800/30 border-gray-700/50 hover:border-gray-600/50'
+                      }`}
                     >
                       <div className="flex items-center justify-between mb-1">
                         <span className="font-medium text-white text-sm">{patient.name}</span>
@@ -195,7 +284,7 @@ const DoctorDashboard: React.FC = () => {
                           {statusConfig.label}
                         </span>
                       </div>
-                    </div>
+                    </button>
                   )
                 })}
               </div>
@@ -319,7 +408,7 @@ const DoctorDashboard: React.FC = () => {
               <div className="min-h-[300px]">
                 {chartTab === 'timeline' && (
                   <div className="space-y-4">
-                    {patientChart.timeline.map((item, index) => {
+                    {selectedPatient.timeline.map((item, index) => {
                       const getDotColor = (type: string) => {
                         if (type === 'surgery') return 'bg-red-400'
                         if (type === 'therapy') return 'bg-green-400'
@@ -330,7 +419,7 @@ const DoctorDashboard: React.FC = () => {
                       <div key={`${item.date}-${item.event}`} className="flex items-start gap-4">
                         <div className="flex flex-col items-center">
                           <div className={`w-3 h-3 rounded-full ${dotColor}`} />
-                          {index < patientChart.timeline.length - 1 && (
+                          {index < selectedPatient.timeline.length - 1 && (
                             <div className="w-0.5 h-12 bg-gray-700" />
                           )}
                         </div>
@@ -345,7 +434,7 @@ const DoctorDashboard: React.FC = () => {
 
                 {chartTab === 'meds' && (
                   <div className="space-y-2">
-                    {patientChart.medications.map((med) => (
+                    {selectedPatient.medications.map((med) => (
                       <div key={med} className="flex items-center gap-3 p-3 bg-gray-800/30 rounded-lg">
                         <Pill className="w-4 h-4 text-green-400" />
                         <span className="text-sm text-white">{med}</span>
@@ -356,7 +445,7 @@ const DoctorDashboard: React.FC = () => {
 
                 {chartTab === 'labs' && (
                   <div className="space-y-2">
-                    {patientChart.recentLabs.map((lab) => (
+                    {selectedPatient.recentLabs.map((lab) => (
                       <div key={`${lab.name}-${lab.date}`} className="flex items-center justify-between p-3 bg-gray-800/30 rounded-lg">
                         <div className="flex items-center gap-3">
                           <FlaskConical className={`w-4 h-4 ${lab.status === 'normal' ? 'text-green-400' : 'text-red-400'}`} />
